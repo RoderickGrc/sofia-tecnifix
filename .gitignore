@@ -1,0 +1,24 @@
+# Archivos con datos sensibles (números de teléfono, información personal)
+temp/encuesta-de-satisfaccion-tecnifix.csv
+temp/**/*.csv
+temp/**/*.xlsx
+temp/**/*.xls
+
+# Archivos de datos de prueba con información personal
+**/datos-prueba*.csv
+**/datos-prueba*.xlsx
+**/test-data*.csv
+**/test-data*.xlsx
+
+# Variables de entorno y secretos
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+
+# Logs y archivos temporales
+*.log
+temp/logs/
+temp/output/
+
