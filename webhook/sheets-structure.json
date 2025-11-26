@@ -1,0 +1,33 @@
+{
+  "CRM_Contactos": {
+    "columns": [
+      "telefono",
+      "nombre",
+      "problema"
+    ],
+    "rows": []
+  },
+  "Encuestas_Base": {
+    "columns": [
+      "call_id",
+      "telefono_cliente_to",
+      "telefono_origen_from",
+      "fecha_hora",
+      "canal",
+      "agente",
+      "nombre_cliente",
+      "motivo_llamada",
+      "sub_motivo",
+      "cliente_calificacion",
+      "cliente_comentario",
+      "estado_llamada",
+      "resumen_llamada",
+      "duracion_segundos",
+      "credits"
+    ],
+    "rows": []
+  }
+}
+
+
+

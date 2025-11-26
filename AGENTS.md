@@ -1,0 +1,51 @@
+# Global Rules
+
+- Proyecto: desarrollo de caso de uso empresarial en **SOF.IA CALL** para la empresa ficticia **TecniFix Solutions**.
+- Objetivo general:
+  - Configurar un **agente de llamadas IA** que realice una **encuesta de satisfacción post-servicio técnico**.
+  - Crear y ejecutar una **campaña de llamadas** con contactos simulados.
+  - Enviar los datos de cada llamada vía **webhook** hacia una hoja de cálculo (Google Sheets / Excel).
+  - Conectar esos datos a un **dashboard de análisis** (p. ej. Looker Studio) con métricas de satisfacción (incluyendo NPS).
+- Lenguaje:
+  - Documentación, prompts y comentarios en **español neutro**, orientado a contexto empresarial.
+  - Código y nombres de variables pueden ir en inglés si resulta más claro o estándar, pero los textos visibles a usuario final deben ser en español.
+- Estilo:
+  - Tono profesional, claro y conciso, sin verborrea innecesaria.
+  - Explicaciones técnicas: preferencia por estilo impersonal y orientado a acción (“Se debe…”, “El sistema hará…”).
+- Contexto funcional mínimo que siempre debe respetarse:
+  - Llamadas salientes automatizadas a clientes recientes de TecniFix Solutions.
+  - Encuesta breve (3–5 preguntas) sobre:
+    - Calificación general del servicio (1–5).
+    - Percepción del tiempo de atención (bueno / regular / malo).
+    - Percepción de la amabilidad del técnico (buena / regular / mala).
+    - NPS (0–10).
+    - Comentario abierto del cliente.
+  - Captura de datos por llamada (mínimos):
+    - Nombre del cliente.
+    - Teléfono (si está disponible).
+    - Calificación del servicio.
+    - Tiempo de atención.
+    - Amabilidad del técnico.
+    - Comentario abierto.
+    - NPS.
+    - Resultado de la llamada (completada, colgó, no contesta, etc.).
+    - Nota/resumen de la llamada.
+    - Tipo de problema (si aplica).
+    - Fecha/hora de la llamada.
+- Seguridad y buenas prácticas:
+  - No incluir credenciales reales (tokens, API keys) en el repositorio.
+  - Usar variables de entorno o archivos `.env` (no versionados) para secretos.
+  - Cuando se generen ejemplos, usar datos ficticios (nombres, teléfonos, etc.).
+- Organización sugerida del repositorio:
+  - `docs/` → documentos funcionales, diagramas, manuales, prompts explicados.
+  - `prompts/` → prompts limpios para SOF.IA CALL y otros agentes.
+  - `webhook/` → código del webhook (p. ej. Google Apps Script o backend ligero).
+  - `dashboard/` → definiciones de métricas, diseños, capturas y documentación del BI.
+  - `tests/` → planes de prueba, casos de prueba y scripts de testing si aplican.
+  - `data/` → estructuras de ejemplo (JSON, CSV) y plantillas de datos.
+- Al modificar archivos existentes:
+  - Mantener la intención original del caso TecniFix Solutions.
+  - No eliminar requerimientos funcionales sin motivo explícito.
+  - Preferir refactorizaciones que mejoren claridad y trazabilidad del flujo completo:
+    agente → campaña → webhook → hoja de cálculo → dashboard.
+

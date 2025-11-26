@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard CX – TecniFix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #f5f5f5;
+      --card: #ffffff;
+      --border: #e4e4e7;
+      --border-soft: #f0f0f0;
+      --text-main: #111827;
+      --text-soft: #6b7280;
+      --text-muted: #9ca3af;
+      --accent: #111827;
+      --shadow-soft: 0 12px 30px rgba(15, 23, 42, 0.12);
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --radius-pill: 999px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #f9fafb 0, #f3f4f6 40%, #e5e7eb 100%);
+      color: var(--text-main);
+    }
+
+    .dashboard-shell {
+      max-width: 1280px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, #fdfdfd, #f5f5f5);
+      border-radius: 28px;
+      box-shadow: var(--shadow-soft);
+      padding: 22px 22px 26px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .header-main {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .logo-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      border: 1px solid #111827;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .logo-text {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #4b5563;
+    }
+
+    .header-title {
+      font-size: 19px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .header-title span.secondary {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-soft);
+    }
+
+    .header-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      min-width: 220px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.9);
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+    }
+
+    .filters-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .filter-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border);
+      background: #ffffff;
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .filter-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      color: #9ca3af;
+    }
+
+    .filter-pill {
+      padding: 3px 10px;
+      border-radius: var(--radius-pill);
+      background: #111827;
+      color: #f9fafb;
+      font-size: 11px;
+    }
+
+    .filter-pill.outlined {
+      background: transparent;
+      color: var(--text-soft);
+      border: 1px solid var(--border);
+    }
+
+    .layout-grid {
+      display: grid;
+      grid-template-columns: 1.7fr 1.3fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 960px) {
+      .layout-grid {
+        grid-template-columns: 1fr;
+      }
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .header-actions {
+        align-items: flex-start;
+      }
+    }
+
+    .panel {
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-soft);
+      background: #ffffff;
+      padding: 14px 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .panel-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #4b5563;
+    }
+
+    .panel-subtitle {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .panel-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 960px) {
+      .kpi-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .kpi-card {
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-soft);
+      background: #fafafa;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .kpi-value-row {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .kpi-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .kpi-unit {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .kpi-trend {
+      font-size: 11px;
+      color: #16a34a;
+    }
+
+    .kpi-trend.negative {
+      color: #dc2626;
+    }
+
+    .kpi-footer {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .chart-placeholder {
+      border-radius: var(--radius-md);
+      border: 1px dashed #d4d4d8;
+      background-image: linear-gradient(135deg, #f9fafb 0, #f3f4f6 50%, #e5e7eb 100%);
+      min-height: 170px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .chart-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .chart-title {
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .chart-meta {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .chart-grid {
+      margin-top: 10px;
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+      background: repeating-linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0.03),
+        rgba(0, 0, 0, 0.03) 1px,
+        transparent 1px,
+        transparent 28px
+      ),
+      repeating-linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.03),
+        rgba(0, 0, 0, 0.03) 1px,
+        transparent 1px,
+        transparent 22px
+      );
+    }
+
+    .chart-line {
+      position: absolute;
+      inset: 12px 8px 10px 8px;
+      border-radius: 999px;
+      border: 2px solid rgba(0,0,0,0.45);
+      opacity: 0.7;
+    }
+
+    .chart-bars {
+      position: absolute;
+      inset: 12px 10px 8px 10px;
+      display: flex;
+      gap: 6px;
+      align-items: flex-end;
+    }
+
+    .chart-bar {
+      flex: 1;
+      border-radius: 999px 999px 4px 4px;
+      background: #111827;
+      opacity: 0.8;
+      min-height: 12%;
+    }
+
+    .chart-bar:nth-child(2) { height: 80%; opacity: 0.95; }
+    .chart-bar:nth-child(3) { height: 55%; }
+    .chart-bar:nth-child(4) { height: 32%; }
+    .chart-bar:nth-child(5) { height: 68%; }
+
+    .chart-legend {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .chart-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      border: 1px solid #111827;
+      background: rgba(0,0,0,0.03);
+      margin-right: 4px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .columns-vertical {
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    .table-wrapper {
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-soft);
+      background: #ffffff;
+      margin-top: 16px;
+      padding: 14px 14px 10px;
+    }
+
+    .table-header-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .table-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #4b5563;
+    }
+
+    .table-subtitle {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    thead {
+      border-bottom: 1px solid var(--border);
+    }
+
+    th, td {
+      padding: 6px 4px;
+      text-align: left;
+    }
+
+    th {
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      font-size: 10px;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .tag {
+      display: inline-flex;
+      padding: 2px 7px;
+      border-radius: var(--radius-pill);
+      border: 1px solid #e5e7eb;
+      font-size: 10px;
+      color: #374151;
+    }
+
+    .score-badge {
+      padding: 3px 7px;
+      border-radius: var(--radius-pill);
+      border: 1px solid #d1d5db;
+      font-size: 10px;
+      font-feature-settings: "tnum" 1, "lnum" 1;
+    }
+
+    .score-badge.good {
+      background: #111827;
+      color: #f9fafb;
+      border-color: #111827;
+    }
+
+    .score-badge.neutral {
+      background: #f3f4f6;
+    }
+
+    .ellipsis {
+      max-width: 260px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="dashboard-shell">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-main">
+        <div class="logo-mark">
+          <div class="logo-icon">TF</div>
+          <div class="logo-text">Customer Experience Monitor</div>
+        </div>
+        <div class="header-title">
+          <span>Panel de Satisfacción – TecniFix</span>
+          <span class="secondary">Servicio técnico & postventa</span>
+        </div>
+        <div class="header-meta">
+          Datos consolidados desde Google Sheets · Última actualización: 12:34
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="pill">
+          <span class="pill-dot"></span>
+          <span>Operativo · Hoy</span>
+        </div>
+        <div class="filters-row">
+          <div class="filter-group">
+            <span class="filter-label">Rango</span>
+            <span class="filter-pill">Últimos 30 días</span>
+          </div>
+          <div class="filter-group">
+            <span class="filter-label">Tipo de problema</span>
+            <span class="filter-pill outlined">Todos</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- KPIs -->
+    <section class="panel" style="margin-bottom: 16px;">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Indicadores principales</div>
+          <div class="panel-subtitle">Visión general de satisfacción, volumen y costos</div>
+        </div>
+        <div class="panel-meta">Fuente: Hoja “Encuestas_Base”</div>
+      </div>
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-label">NPS promedio</div>
+          <div class="kpi-value-row">
+            <div class="kpi-value">7.2</div>
+            <div class="kpi-unit">/ 10</div>
+          </div>
+          <div class="kpi-trend">▲ +0.6 vs. mes anterior</div>
+          <div class="kpi-footer">Meta: 7.0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Calificación promedio</div>
+          <div class="kpi-value-row">
+            <div class="kpi-value">4.6</div>
+            <div class="kpi-unit">/ 5</div>
+          </div>
+          <div class="kpi-trend">▲ +0.2 vs. mes anterior</div>
+          <div class="kpi-footer">Umbral crítico &lt; 4.0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">% clientes satisfechos</div>
+          <div class="kpi-value-row">
+            <div class="kpi-value">88%</div>
+          </div>
+          <div class="kpi-trend">▲ +3 pp</div>
+          <div class="kpi-footer">Calificación ≥ 4</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Llamadas completadas</div>
+          <div class="kpi-value-row">
+            <div class="kpi-value">312</div>
+          </div>
+          <div class="kpi-trend neutral">● 61 reprogramadas</div>
+          <div class="kpi-footer">Período seleccionado</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main layout -->
+    <section class="layout-grid">
+      <!-- Left side: distribución y correlaciones -->
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Análisis de distribución</div>
+            <div class="panel-subtitle">Distribución de calificaciones y NPS en la campaña</div>
+          </div>
+          <div class="panel-meta">Frecuencia de respuestas por valor</div>
+        </div>
+        <div class="chart-placeholder">
+          <div class="chart-header">
+            <div class="chart-title">Distribución de calificaciones (CSAT)</div>
+            <div class="chart-meta">Histograma: frecuencia de cada calificación (1-5)</div>
+          </div>
+          <div class="chart-grid">
+            <div class="chart-bars" style="align-items: flex-end; justify-content: space-around; padding: 0 20px;">
+              <div class="chart-bar" style="height: 15%;"></div>
+              <div class="chart-bar" style="height: 25%;"></div>
+              <div class="chart-bar" style="height: 35%;"></div>
+              <div class="chart-bar" style="height: 85%; opacity: 0.95;"></div>
+              <div class="chart-bar" style="height: 100%;"></div>
+            </div>
+          </div>
+          <div class="chart-legend">
+            <span><span class="chart-dot"></span>1</span>
+            <span><span class="chart-dot"></span>2</span>
+            <span><span class="chart-dot"></span>3</span>
+            <span><span class="chart-dot"></span>4</span>
+            <span><span class="chart-dot"></span>5</span>
+          </div>
+        </div>
+        <div class="chart-placeholder">
+          <div class="chart-header">
+            <div class="chart-title">Distribución de NPS</div>
+            <div class="chart-meta">Segmentación: Promotores (9-10), Neutrales (7-8), Detractores (0-6)</div>
+          </div>
+          <div class="chart-grid">
+            <div class="chart-bars" style="align-items: flex-end; justify-content: space-around; padding: 0 20px;">
+              <div class="chart-bar" style="height: 20%;"></div>
+              <div class="chart-bar" style="height: 30%;"></div>
+              <div class="chart-bar" style="height: 45%;"></div>
+              <div class="chart-bar" style="height: 60%;"></div>
+              <div class="chart-bar" style="height: 75%;"></div>
+              <div class="chart-bar" style="height: 80%;"></div>
+              <div class="chart-bar" style="height: 90%;"></div>
+              <div class="chart-bar" style="height: 95%;"></div>
+              <div class="chart-bar" style="height: 100%; opacity: 0.95;"></div>
+              <div class="chart-bar" style="height: 85%;"></div>
+              <div class="chart-bar" style="height: 70%;"></div>
+            </div>
+          </div>
+          <div class="chart-legend">
+            <span><span class="chart-dot"></span>Detractores (0-6)</span>
+            <span><span class="chart-dot"></span>Neutrales (7-8)</span>
+            <span><span class="chart-dot"></span>Promotores (9-10)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right side: métricas por tipo de problema -->
+      <div class="columns-vertical">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">NPS por tipo de problema</div>
+              <div class="panel-subtitle">Comparación de NPS promedio según motivo de servicio</div>
+            </div>
+            <div class="panel-meta">Dimensión: problema (hardware, software, internet)</div>
+          </div>
+          <div class="chart-placeholder" style="min-height: 160px;">
+            <div class="chart-header">
+              <div class="chart-title">NPS promedio</div>
+              <div class="chart-meta">Barras horizontales agrupadas por problema</div>
+            </div>
+            <div class="chart-grid">
+              <div class="chart-bars" style="flex-direction: column; gap: 12px; padding: 10px 20px;">
+                <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                  <div style="font-size: 10px; color: var(--text-soft); min-width: 70px;">Hardware</div>
+                  <div style="flex: 1; height: 20px; background: #f3f4f6; border-radius: 4px; position: relative;">
+                    <div style="height: 100%; width: 75%; background: #111827; border-radius: 4px;"></div>
+                    <div style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); font-size: 9px; color: var(--text-main); font-weight: 600;">7.5</div>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                  <div style="font-size: 10px; color: var(--text-soft); min-width: 70px;">Software</div>
+                  <div style="flex: 1; height: 20px; background: #f3f4f6; border-radius: 4px; position: relative;">
+                    <div style="height: 100%; width: 85%; background: #111827; border-radius: 4px;"></div>
+                    <div style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); font-size: 9px; color: var(--text-main); font-weight: 600;">8.5</div>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                  <div style="font-size: 10px; color: var(--text-soft); min-width: 70px;">Internet</div>
+                  <div style="flex: 1; height: 20px; background: #f3f4f6; border-radius: 4px; position: relative;">
+                    <div style="height: 100%; width: 65%; background: #111827; border-radius: 4px;"></div>
+                    <div style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); font-size: 9px; color: var(--text-main); font-weight: 600;">6.5</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="chart-legend">
+              <span>Escala: 0-10</span>
+              <span>Meta: 7.0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">CSAT por tipo de problema</div>
+              <div class="panel-subtitle">Calificación promedio según motivo de servicio</div>
+            </div>
+            <div class="panel-meta">Escala: 1-5</div>
+          </div>
+          <div class="chart-placeholder" style="min-height: 140px;">
+            <div class="chart-header">
+              <div class="chart-title">Calificación promedio</div>
+              <div class="chart-meta">Barras verticales comparativas</div>
+            </div>
+            <div class="chart-grid">
+              <div class="chart-bars" style="justify-content: space-around; padding: 0 30px;">
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                  <div class="chart-bar" style="height: 70%; width: 40px;"></div>
+                  <div style="font-size: 9px; color: var(--text-soft);">Hardware</div>
+                  <div style="font-size: 10px; font-weight: 600; color: var(--text-main);">4.2</div>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                  <div class="chart-bar" style="height: 90%; width: 40px; opacity: 0.95;"></div>
+                  <div style="font-size: 9px; color: var(--text-soft);">Software</div>
+                  <div style="font-size: 10px; font-weight: 600; color: var(--text-main);">4.6</div>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                  <div class="chart-bar" style="height: 60%; width: 40px;"></div>
+                  <div style="font-size: 9px; color: var(--text-soft);">Internet</div>
+                  <div style="font-size: 10px; font-weight: 600; color: var(--text-main);">3.8</div>
+                </div>
+              </div>
+            </div>
+            <div class="chart-legend">
+              <span>Escala: 1-5</span>
+              <span>Umbral crítico: 4.0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Comments table -->
+    <section class="table-wrapper">
+      <div class="table-header-row">
+        <div>
+          <div class="table-title">Comentarios de clientes</div>
+          <div class="table-subtitle">Ordenados por calificación más baja y NPS detractor</div>
+        </div>
+        <div class="panel-meta">Uso operativo: insights accionables</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Teléfono</th>
+            <th>Problema</th>
+            <th>CSAT</th>
+            <th>NPS</th>
+            <th>Estado</th>
+            <th>Comentario</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>2025-11-23</td>
+            <td>+503 7XXX XXX</td>
+            <td><span class="tag">Software</span></td>
+            <td><span class="score-badge">3 / 5</span></td>
+            <td><span class="score-badge neutral">4</span></td>
+            <td><span class="tag">completada</span></td>
+            <td class="ellipsis">Atención correcta, pero el tiempo de espera fue largo…</td>
+          </tr>
+          <tr>
+            <td>2025-11-22</td>
+            <td>+503 7XXX XXX</td>
+            <td><span class="tag">Hardware</span></td>
+            <td><span class="score-badge good">5 / 5</span></td>
+            <td><span class="score-badge good">10</span></td>
+            <td><span class="tag">completada</span></td>
+            <td class="ellipsis">Pongan aire acondicionado en el local.</td>
+          </tr>
+          <tr>
+            <td>2025-11-21</td>
+            <td>+503 7XXX XXX</td>
+            <td><span class="tag">Pantalla</span></td>
+            <td><span class="score-badge">2 / 5</span></td>
+            <td><span class="score-badge neutral">6</span></td>
+            <td><span class="tag">reprogramada</span></td>
+            <td class="ellipsis">No había repuesto disponible, tuve que volver otro día…</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Demora por tipo de problema -->
+    <section class="panel" style="margin-top: 16px;">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Demora por tipo de problema</div>
+          <div class="panel-subtitle">Distribución de tiempo de atención (bueno, regular, malo) según tipo de problema</div>
+        </div>
+        <div class="panel-meta">Análisis de percepción de tiempo de espera</div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 10px;">
+        <!-- Hardware -->
+        <div class="chart-placeholder" style="min-height: 200px;">
+          <div class="chart-header">
+            <div class="chart-title">Hardware</div>
+            <div class="chart-meta">Distribución de percepción de demora</div>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 140px; position: relative;">
+            <!-- Diagrama de pastel simulado -->
+            <div style="width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(
+              #111827 0deg 180deg,
+              #6b7280 180deg 270deg,
+              #d1d5db 270deg 360deg
+            ); position: relative;">
+              <div style="position: absolute; inset: 20px; background: #ffffff; border-radius: 50%;"></div>
+            </div>
+            <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 4px; font-size: 10px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="chart-dot" style="background: #111827;"></span>
+                <span>Bueno: 50%</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="chart-dot" style="background: #6b7280;"></span>
+                <span>Regular: 25%</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="chart-dot" style="background: #d1d5db;"></span>
+                <span>Malo: 25%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Software -->
+        <div class="chart-placeholder" style="min-height: 200px;">
+          <div class="chart-header">
+            <div class="chart-title">Software</div>
+            <div class="chart-meta">Distribución de percepción de demora</div>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 140px; position: relative;">
+            <!-- Diagrama de pastel simulado -->
+            <div style="width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(
+              #111827 0deg 252deg,
+              #6b7280 252deg 288deg,
+              #d1d5db 288deg 360deg
+            ); position: relative;">
+              <div style="position: absolute; inset: 20px; background: #ffffff; border-radius: 50%;"></div>
+            </div>
+            <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 4px; font-size: 10px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="chart-dot" style="background: #111827;"></span>
+                <span>Bueno: 70%</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="chart-dot" style="background: #6b7280;"></span>
+                <span>Regular: 10%</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="chart-dot" style="background: #d1d5db;"></span>
+                <span>Malo: 20%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Internet -->
+        <div class="chart-placeholder" style="min-height: 200px;">
+          <div class="chart-header">
+            <div class="chart-title">Internet</div>
+            <div class="chart-meta">Distribución de percepción de demora</div>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 140px; position: relative;">
+            <!-- Diagrama de pastel simulado -->
+            <div style="width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(
+              #111827 0deg 108deg,
+              #6b7280 108deg 216deg,
+              #d1d5db 216deg 360deg
+            ); position: relative;">
+              <div style="position: absolute; inset: 20px; background: #ffffff; border-radius: 50%;"></div>
+            </div>
+            <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 4px; font-size: 10px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="chart-dot" style="background: #111827;"></span>
+                <span>Bueno: 30%</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="chart-dot" style="background: #6b7280;"></span>
+                <span>Regular: 30%</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="chart-dot" style="background: #d1d5db;"></span>
+                <span>Malo: 40%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

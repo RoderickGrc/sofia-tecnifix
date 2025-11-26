@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Simulador de Webhook TecniFix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 1.5rem;
+      background: #f4f5f7;
+      color: #111827;
+    }
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+    }
+    .app {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
+      gap: 1.5rem;
+    }
+    @media (max-width: 900px) {
+      .app {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+    .panel {
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      padding: 1rem 1.1rem;
+      background-color: #f9fafb;
+    }
+    .panel h2 {
+      font-size: 0.95rem;
+      margin: 0 0 0.75rem;
+    }
+    label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.25rem;
+    }
+    input[type="text"],
+    textarea {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      padding: 0.45rem 0.6rem;
+      font-size: 0.82rem;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+      background: #ffffff;
+    }
+    input[type="text"]:focus,
+    textarea:focus {
+      border-color: #10b981;
+      box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.35);
+      background: #ffffff;
+    }
+    textarea {
+      min-height: 260px;
+      resize: vertical;
+      font-family: ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      line-height: 1.35;
+      white-space: pre;
+    }
+    .field-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .field {
+      margin-bottom: 0.75rem;
+    }
+    .small-hint {
+      font-size: 0.72rem;
+      color: #6b7280;
+      margin-top: 0.15rem;
+    }
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
+    }
+    button.primary {
+      background: #10b981;
+      color: #ffffff;
+      box-shadow: 0 8px 18px rgba(16, 185, 129, 0.35);
+    }
+    button.primary:hover {
+      background: #059669;
+      box-shadow: 0 10px 24px rgba(16, 185, 129, 0.45);
+      transform: translateY(-1px);
+    }
+    button.secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+    button.secondary:hover {
+      background: #d1d5db;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 0.1rem 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .badge-green {
+      background: #ecfdf3;
+      color: #047857;
+    }
+    .badge-amber {
+      background: #fffbeb;
+      color: #92400e;
+    }
+    pre {
+      margin: 0;
+      font-size: 0.78rem;
+      line-height: 1.35;
+      max-height: 350px;
+      overflow: auto;
+      padding: 0.75rem;
+      border-radius: 10px;
+      background: #0b1120;
+      color: #e5e7eb;
+      border: 1px solid #111827;
+      white-space: pre;
+    }
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .section-title span {
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+    .status-line {
+      margin-top: 0.35rem;
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+    .saved-url-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.6rem;
+      margin: 0.25rem 0.25rem 0.25rem 0;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .saved-url-item:hover {
+      background: #e5e7eb;
+    }
+    .saved-url-item span {
+      color: #374151;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .saved-url-item .delete-btn {
+      color: #ef4444;
+      font-weight: bold;
+      font-size: 0.9rem;
+      line-height: 1;
+      padding: 0 0.2rem;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+    }
+    .saved-url-item .delete-btn:hover {
+      color: #dc2626;
+    }
+  </style>
+</head>
+<body>
+  <h1>Simulador de webhook de encuestas – TecniFix</h1>
+  <div class="app">
+    <div class="panel">
+      <div class="section-title">
+        <h2>Configuración &amp; HTML</h2>
+        <span>1. Completar datos · 2. Pegar HTML · 3. Enviar</span>
+      </div>
+      <form id="webhook-form">
+        <div class="field-row">
+          <div class="field">
+            <label for="contact-number">Número del contacto (to)</label>
+            <input id="contact-number" type="text" placeholder="Ej: 2283 3301" maxlength="9" required />
+            <div class="small-hint">Este se usará como <code>call.to</code>. Formato: XXXX XXXX</div>
+          </div>
+          <div class="field">
+            <label for="from-number">Número origen (from)</label>
+            <input id="from-number" type="text" placeholder="Ej: 2283 3301" value="2283 3301" maxlength="9" />
+            <div class="small-hint">Opcional. Si se deja vacío, se enviará <code>null</code>. Formato: XXXX XXXX</div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="webhook-url">URL del webhook</label>
+          <div style="position: relative;">
+            <input id="webhook-url" type="text" placeholder="https://miapp.com/api/webhook-end-call" required />
+            <div id="saved-urls" style="margin-top: 0.5rem; display: none;"></div>
+          </div>
+          <div class="small-hint">Debe aceptar un <code>POST</code> con el contrato de llamada.</div>
+        </div>
+        <div class="field">
+          <label for="html-input">HTML de la sección de la llamada</label>
+          <textarea id="html-input" placeholder="Pega aquí el HTML completo de la llamada..."></textarea>
+          <div class="small-hint">Se extraerán transcripción, resumen y variables de análisis directamente del HTML.</div>
+        </div>
+        <div class="buttons">
+          <button type="button" id="parse-btn" class="secondary">Generar payload (solo vista previa)</button>
+          <button type="submit" class="primary">Confirmar y enviar webhook</button>
+        </div>
+        <div class="status-line" id="status-line"></div>
+      </form>
+    </div>
+
+    <div class="panel">
+      <div class="section-title">
+        <h2>Payload &amp; respuesta</h2>
+        <span class="badge badge-green">Solo lectura · No modifica el HTML de origen</span>
+      </div>
+      <div class="field">
+        <label>Payload generado (JSON)</label>
+        <pre id="payload-preview">// Aquí verás el JSON que se enviará al webhook...</pre>
+      </div>
+      <div class="field" style="margin-top:0.75rem;">
+        <label>Respuesta del servidor</label>
+        <pre id="server-response">// Respuesta HTTP del endpoint aparecerá aquí...</pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      function parseHtmlToPayload(html, opts) {
+        if (!html || !html.trim()) {
+          return {
+            successful: true,
+            call: {
+              id: opts.callId || Math.floor(Math.random() * 1e9),
+              from: opts.from || null,
+              to: opts.to || null,
+              credits: null,
+              transcript: [],
+              summary: null,
+              is_completed: true,
+              analysis_schema: {},
+              analysis: {},
+            },
+          };
+        }
+
+        const parser = new DOMParser();
+        // Parsear el HTML directamente - DOMParser puede manejar fragmentos
+        const doc = parser.parseFromString(html, "text/html");
+        
+        // Usar body como contexto principal si existe, sino usar el documento completo
+        let rootContext = doc.body;
+        if (!rootContext) {
+          rootContext = doc.documentElement;
+        }
+        if (!rootContext) {
+          rootContext = doc;
+        }
+
+        // --- 1) Resumen de la llamada ---
+        let summary = null;
+        const resumenLabel = Array.from(rootContext.querySelectorAll("p")).find(
+          (p) => p.textContent.trim() === "Resumen"
+        );
+        if (resumenLabel) {
+          // Buscar el siguiente párrafo hermano o dentro del mismo section
+          const section = resumenLabel.closest("section") || resumenLabel.parentElement;
+          if (section) {
+            // Buscar párrafo con clase text-sm que contenga el resumen
+            const summaryP = section.querySelector("p.text-sm.whitespace-pre-wrap") ||
+                            section.querySelector("p.text-sm.leading-snug") ||
+                            section.querySelector("p.text-sm");
+            if (summaryP && summaryP !== resumenLabel) {
+              summary = summaryP.textContent.trim();
+            } else {
+              // Fallback: buscar cualquier p.text-sm después del label
+              let next = resumenLabel.nextElementSibling;
+              while (next) {
+                if (next.tagName === "P" && next.classList.contains("text-sm")) {
+                  summary = next.textContent.trim();
+                  break;
+                }
+                next = next.nextElementSibling;
+              }
+            }
+          }
+        }
+
+        // --- 2) Variables de análisis (schema + values) ---
+        const analysis = {};
+        const analysisSchema = {};
+
+        const variablesLabel = Array.from(rootContext.querySelectorAll("p")).find(
+          (p) => p.textContent.trim() === "Variables de análisis"
+        );
+
+        if (variablesLabel) {
+          const section =
+            variablesLabel.closest("section") || variablesLabel.parentElement?.parentElement;
+          if (section) {
+            // Buscar los cards con la estructura: div.rounded-lg.border
+            const cards = section.querySelectorAll("div.rounded-lg.border");
+            cards.forEach((card) => {
+              // Estructura: span con el nombre de la variable, span con el valor, div con el tipo
+              const nameSpan = card.querySelector("span.text-xs.font-semibold");
+              // Buscar el span con el valor (puede tener clase text-[10px] o rounded-full)
+              let valueSpan = null;
+              const allSpans = card.querySelectorAll("span");
+              for (let span of allSpans) {
+                if (span !== nameSpan && span.textContent.trim()) {
+                  // El span del valor generalmente tiene rounded-full o está en una posición específica
+                  if (span.classList.contains("rounded-full") || 
+                      span.classList.contains("bg-emerald-600") ||
+                      span.classList.contains("text-emerald-700")) {
+                    valueSpan = span;
+                    break;
+                  }
+                }
+              }
+              // Si no encontramos por clase, tomar el segundo span que no sea el nombre
+              if (!valueSpan && allSpans.length >= 2) {
+                for (let span of allSpans) {
+                  if (span !== nameSpan && span.textContent.trim()) {
+                    valueSpan = span;
+                    break;
+                  }
+                }
+              }
+              
+              const typeDiv = card.querySelector("div.text-sm.break-words");
+
+              if (nameSpan) {
+                const key = nameSpan.textContent.trim();
+                const type = typeDiv ? typeDiv.textContent.trim() : "string";
+                
+                // El valor puede estar en el span con rounded-full o en otro lugar
+                let rawValue = null;
+                if (valueSpan) {
+                  rawValue = valueSpan.textContent.trim();
+                }
+
+                if (key && rawValue !== null && rawValue !== "") {
+                  analysisSchema[key] = type;
+
+                  let value = rawValue;
+                  if (type === "number") {
+                    const num = Number(rawValue.replace(/,/g, "."));
+                    value = Number.isNaN(num) ? null : num;
+                  } else if (rawValue === "null" || rawValue === "") {
+                    value = null;
+                  }
+                  analysis[key] = value;
+                }
+              }
+            });
+          }
+        }
+
+        // Si no hay estado explícito, intentar inferir "completada" por el chip "completed".
+        if (
+          analysis["estado_llamada_completada_rechazada_reprogramada_o_erronea"] ===
+          undefined
+        ) {
+          const statusChip = Array.from(rootContext.querySelectorAll("span")).find(
+            (el) => el.textContent.trim().toLowerCase() === "completed"
+          );
+          if (statusChip) {
+            analysis["estado_llamada_completada_rechazada_reprogramada_o_erronea"] =
+              "completada";
+            analysisSchema["estado_llamada_completada_rechazada_reprogramada_o_erronea"] =
+              "string";
+          }
+        }
+
+        // --- 3) Créditos (costo estimado) ---
+        let credits = null;
+        // Buscar en el texto que contiene "Costo estimado"
+        const allText = rootContext.textContent || "";
+        const costMatch = allText.match(/Costo estimado[:\s]*(\d+)/i);
+        if (costMatch) {
+          credits = Number(costMatch[1]);
+        } else {
+          // Fallback: buscar en divs
+          const costDiv = Array.from(rootContext.querySelectorAll("div")).find((el) =>
+            /Costo estimado/i.test(el.textContent)
+          );
+          if (costDiv) {
+            const match = costDiv.textContent
+              .replace(/\s+/g, " ")
+              .match(/Costo estimado[:\s]*(\d+)/i);
+            if (match) credits = Number(match[1]);
+          }
+        }
+
+        // --- 4) Transcripción: burbujas bot/usuario ---
+        const transcript = [];
+        // Buscar el contenedor de transcripción por el texto "Transcripción" o por atributos
+        let transcriptContainer = null;
+        
+        // Buscar por el texto "Transcripción" y luego el contenedor scrollable
+        const transcriptLabel = Array.from(rootContext.querySelectorAll("*")).find(
+          (el) => el.textContent && /Transcripción/i.test(el.textContent)
+        );
+        
+        if (transcriptLabel) {
+          // Buscar el contenedor que tiene overflow-y-auto y altura fija
+          const parent = transcriptLabel.closest("div");
+          if (parent) {
+            // Buscar divs con overflow-y-auto o que contengan los mensajes
+            const candidates = parent.querySelectorAll("div");
+            for (let candidate of candidates) {
+              const classes = candidate.className || "";
+              if ((classes.includes("overflow-y-auto") || classes.includes("overflow") || 
+                   classes.includes("h-[420px]") || classes.includes("h-\\[420px\\]")) &&
+                  candidate.querySelectorAll("div.flex.gap-2").length > 0) {
+                transcriptContainer = candidate;
+                break;
+              }
+            }
+          }
+        }
+        
+        // Fallback: buscar directamente divs con flex.gap-2 que contengan mensajes
+        if (!transcriptContainer) {
+          const allFlexGroups = rootContext.querySelectorAll("div.flex.gap-2");
+          if (allFlexGroups.length > 0) {
+            // Encontrar el contenedor padre común
+            transcriptContainer = allFlexGroups[0].parentElement;
+          }
+        }
+
+        if (transcriptContainer) {
+          // Buscar los grupos de mensajes: div.flex.gap-2
+          const messageGroups = transcriptContainer.querySelectorAll("div.flex.gap-2");
+          let index = 1;
+          const baseTime = Date.now();
+
+          messageGroups.forEach((group) => {
+            // Buscar el div con el texto del mensaje (px-3 o rounded-xl)
+            let textDiv = group.querySelector("div.px-3");
+            if (!textDiv) {
+              // Buscar cualquier div que contenga texto y tenga rounded-xl
+              const divs = group.querySelectorAll("div");
+              for (let div of divs) {
+                const text = div.textContent ? div.textContent.trim() : "";
+                if (text && text.length > 5 && // Al menos 5 caracteres para ser un mensaje real
+                    !div.querySelector("svg") && 
+                    (div.classList.contains("rounded-xl") || div.classList.contains("px-3"))) {
+                  textDiv = div;
+                  break;
+                }
+              }
+            }
+
+            if (textDiv) {
+              const text = textDiv.textContent.replace(/\s+/g, " ").trim();
+              if (!text || text.length < 3) return; // Ignorar textos muy cortos
+
+              // Determinar si es bot o usuario
+              const isBot = group.classList.contains("justify-start");
+              const role = isBot ? "bot" : "user";
+
+              const createdAt = new Date(baseTime + index * 1000).toISOString();
+              transcript.push({
+                id: "m" + index,
+                created_at: createdAt,
+                text,
+                user: role,
+              });
+              index += 1;
+            }
+          });
+        }
+
+        // --- 5) Construcción del payload con el contrato dado ---
+        const callId = opts.callId || Math.floor(Math.random() * 1e9);
+
+        const payload = {
+          successful: true,
+          call: {
+            id: callId,
+            from: opts.from || null,
+            to: opts.to || null,
+            credits: credits,
+            transcript: transcript,
+            summary: summary,
+            is_completed: true,
+            analysis_schema: analysisSchema,
+            analysis: analysis,
+          },
+        };
+
+        return payload;
+      }
+
+      // --- Máscara de formato numérico XXXX XXXX ---
+      function applyPhoneMask(input) {
+        input.addEventListener("input", function (e) {
+          let value = e.target.value.replace(/\D/g, ""); // Solo números
+          if (value.length > 8) {
+            value = value.substring(0, 8);
+          }
+          if (value.length > 4) {
+            value = value.substring(0, 4) + " " + value.substring(4);
+          }
+          e.target.value = value;
+        });
+
+        input.addEventListener("keydown", function (e) {
+          // Permitir teclas de control (backspace, delete, tab, etc.)
+          if (e.key === "Backspace" || e.key === "Delete" || e.key === "Tab" || 
+              e.key === "ArrowLeft" || e.key === "ArrowRight" || 
+              e.ctrlKey || e.metaKey) {
+            return;
+          }
+          // Solo permitir números
+          if (!/[0-9]/.test(e.key)) {
+            e.preventDefault();
+          }
+        });
+
+        input.addEventListener("paste", function (e) {
+          e.preventDefault();
+          let pasted = (e.clipboardData || window.clipboardData).getData("text");
+          let numbers = pasted.replace(/\D/g, "");
+          if (numbers.length > 8) {
+            numbers = numbers.substring(0, 8);
+          }
+          if (numbers.length > 4) {
+            numbers = numbers.substring(0, 4) + " " + numbers.substring(4);
+          }
+          this.value = numbers;
+        });
+      }
+
+      // --- Wire-up UI ---
+      const form = document.getElementById("webhook-form");
+      const htmlInput = document.getElementById("html-input");
+      const contactInput = document.getElementById("contact-number");
+      const fromInput = document.getElementById("from-number");
+      const urlInput = document.getElementById("webhook-url");
+      const payloadPreview = document.getElementById("payload-preview");
+      const responsePreview = document.getElementById("server-response");
+      const parseBtn = document.getElementById("parse-btn");
+      const statusLine = document.getElementById("status-line");
+
+      // Aplicar máscara a los campos de números
+      applyPhoneMask(contactInput);
+      applyPhoneMask(fromInput);
+
+      // --- Gestión de URLs guardadas en localStorage ---
+      const STORAGE_KEY = "webhook_urls_history";
+      const savedUrlsContainer = document.getElementById("saved-urls");
+
+      function getSavedUrls() {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          return saved ? JSON.parse(saved) : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function saveUrl(url) {
+        if (!url || !url.trim()) return;
+        const urlTrimmed = url.trim();
+        let urls = getSavedUrls();
+        // Remover si ya existe
+        urls = urls.filter(u => u !== urlTrimmed);
+        // Agregar al inicio
+        urls.unshift(urlTrimmed);
+        // Limitar a 10 URLs
+        if (urls.length > 10) {
+          urls = urls.slice(0, 10);
+        }
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(urls));
+          renderSavedUrls();
+        } catch (e) {
+          console.error("Error guardando URL:", e);
+        }
+      }
+
+      function deleteUrl(url) {
+        let urls = getSavedUrls();
+        urls = urls.filter(u => u !== url);
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(urls));
+          renderSavedUrls();
+        } catch (e) {
+          console.error("Error eliminando URL:", e);
+        }
+      }
+
+      function renderSavedUrls() {
+        const urls = getSavedUrls();
+        if (urls.length === 0) {
+          savedUrlsContainer.style.display = "none";
+          return;
+        }
+        savedUrlsContainer.style.display = "block";
+        savedUrlsContainer.innerHTML = "";
+        urls.forEach(url => {
+          const item = document.createElement("div");
+          item.className = "saved-url-item";
+          
+          const span = document.createElement("span");
+          span.textContent = url;
+          span.style.cursor = "pointer";
+          span.addEventListener("click", function() {
+            urlInput.value = url;
+          });
+          
+          const deleteBtn = document.createElement("button");
+          deleteBtn.className = "delete-btn";
+          deleteBtn.textContent = "×";
+          deleteBtn.title = "Eliminar";
+          deleteBtn.addEventListener("click", function(e) {
+            e.stopPropagation();
+            deleteUrl(url);
+          });
+          
+          item.appendChild(span);
+          item.appendChild(deleteBtn);
+          savedUrlsContainer.appendChild(item);
+        });
+      }
+
+      // Cargar última URL usada al iniciar
+      const savedUrls = getSavedUrls();
+      if (savedUrls.length > 0) {
+        urlInput.value = savedUrls[0];
+      }
+
+      // Renderizar URLs guardadas
+      renderSavedUrls();
+
+      function buildPayload() {
+        const html = htmlInput.value || "";
+        // Remover espacios del formato XXXX XXXX antes de enviar
+        const to = contactInput.value.replace(/\s/g, "").trim() || null;
+        const from = fromInput.value.replace(/\s/g, "").trim() || null;
+
+        if (!html) {
+          statusLine.textContent =
+            "⚠️ No se ha pegado HTML aún. Aun así se generará un payload vacío.";
+        } else {
+          statusLine.textContent = "";
+        }
+
+        const payload = parseHtmlToPayload(html, { to, from });
+        payloadPreview.textContent = JSON.stringify(payload, null, 2);
+        return payload;
+      }
+
+      parseBtn.addEventListener("click", function () {
+        const payload = buildPayload();
+        if (payload.call && Object.keys(payload.call.analysis || {}).length) {
+          statusLine.textContent =
+            "✅ Payload generado a partir del HTML. Revisa antes de enviarlo.";
+        } else {
+          statusLine.textContent =
+            "ℹ️ Payload generado, pero no se encontraron variables de análisis en el HTML.";
+        }
+      });
+
+      form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        responsePreview.textContent = "// Enviando webhook...";
+
+        const webhookUrl = urlInput.value.trim();
+        if (!webhookUrl) {
+          alert("Ingresa la URL del webhook.");
+          responsePreview.textContent = "// Falta la URL del webhook";
+          return;
+        }
+
+        const payload = buildPayload();
+
+        try {
+          const res = await fetch(webhookUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+            mode: "no-cors", // Permite enviar pero no leer respuesta (para evitar CORS)
+          });
+
+          // Con mode: "no-cors" no podemos leer la respuesta, pero asumimos éxito si no hay error
+          responsePreview.textContent = "Status: (no-cors mode)\n\nLa petición se envió, pero no se puede leer la respuesta debido a CORS.\n\nPara verificar la respuesta, abre la consola del navegador (F12) o prueba con PowerShell:\n\nInvoke-WebRequest -Uri \"" + webhookUrl + "\" -Method POST -Body '" + JSON.stringify(payload) + "' -ContentType \"application/json\"";
+          
+          // Guardar URL en localStorage (asumimos éxito si no hay error)
+          saveUrl(webhookUrl);
+          statusLine.textContent = "✅ Petición enviada (modo no-cors). Verifica en Google Sheets si se guardó correctamente.";
+        } catch (err) {
+          let errorMsg = "Error al enviar: " + err.message;
+          if (err.message.includes("Failed to fetch") || err.message.includes("CORS")) {
+            errorMsg += "\n\n⚠️ PROBLEMA DE CORS DETECTADO\n\n";
+            errorMsg += "Soluciones:\n";
+            errorMsg += "1. Abre el HTML desde un servidor local (no desde file://)\n";
+            errorMsg += "2. O usa PowerShell para probar:\n\n";
+            errorMsg += "   $payload = '" + JSON.stringify(payload).replace(/'/g, "''") + "'\n";
+            errorMsg += "   Invoke-WebRequest -Uri \"" + webhookUrl + "\" -Method POST -Body $payload -ContentType \"application/json\"\n";
+          }
+          responsePreview.textContent = errorMsg;
+          statusLine.textContent = "❌ Error de red o CORS. Revisa la respuesta arriba para más detalles.";
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

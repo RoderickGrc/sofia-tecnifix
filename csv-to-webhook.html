@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>CSV a Webhook - TecniFix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 1.5rem;
+      background: #f4f5f7;
+      color: #111827;
+    }
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+    }
+    .app {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+      padding: 1.5rem;
+    }
+    .panel {
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      padding: 1rem 1.1rem;
+      background-color: #f9fafb;
+      margin-bottom: 1rem;
+    }
+    .panel h2 {
+      font-size: 0.95rem;
+      margin: 0 0 0.75rem;
+    }
+    label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.25rem;
+    }
+    input[type="text"],
+    textarea {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      padding: 0.45rem 0.6rem;
+      font-size: 0.82rem;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      background: #ffffff;
+      font-family: inherit;
+    }
+    input[type="text"]:focus,
+    textarea:focus {
+      border-color: #10b981;
+      box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.35);
+    }
+    textarea {
+      min-height: 200px;
+      resize: vertical;
+      font-family: ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      line-height: 1.35;
+      white-space: pre;
+    }
+    .field-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .field {
+      margin-bottom: 0.75rem;
+    }
+    .small-hint {
+      font-size: 0.72rem;
+      color: #6b7280;
+      margin-top: 0.15rem;
+    }
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
+    }
+    button.primary {
+      background: #10b981;
+      color: #ffffff;
+      box-shadow: 0 8px 18px rgba(16, 185, 129, 0.35);
+    }
+    button.primary:hover:not(:disabled) {
+      background: #059669;
+      box-shadow: 0 10px 24px rgba(16, 185, 129, 0.45);
+      transform: translateY(-1px);
+    }
+    button.secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+    button.secondary:hover:not(:disabled) {
+      background: #d1d5db;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 0.1rem 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .badge-green {
+      background: #ecfdf3;
+      color: #047857;
+    }
+    .badge-amber {
+      background: #fffbeb;
+      color: #92400e;
+    }
+    .badge-red {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    pre {
+      margin: 0;
+      font-size: 0.78rem;
+      line-height: 1.35;
+      max-height: 300px;
+      overflow: auto;
+      padding: 0.75rem;
+      border-radius: 10px;
+      background: #0b1120;
+      color: #e5e7eb;
+      border: 1px solid #111827;
+      white-space: pre;
+    }
+    .status-line {
+      margin-top: 0.35rem;
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 0.5rem 0;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #10b981;
+      transition: width 0.3s ease;
+      width: 0%;
+    }
+    .log-container {
+      max-height: 400px;
+      overflow-y: auto;
+      background: #0b1120;
+      color: #e5e7eb;
+      padding: 0.75rem;
+      border-radius: 10px;
+      font-family: ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.75rem;
+      line-height: 1.5;
+    }
+    .log-entry {
+      margin-bottom: 0.25rem;
+    }
+    .log-entry.success {
+      color: #10b981;
+    }
+    .log-entry.error {
+      color: #ef4444;
+    }
+    .log-entry.info {
+      color: #60a5fa;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+    .stat-item {
+      background: #ffffff;
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #111827;
+    }
+    .stat-label {
+      font-size: 0.7rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>CSV a Webhook - TecniFix</h1>
+  <div class="app">
+    <div class="panel">
+      <h2>Configuración</h2>
+      <div class="field-row">
+        <div class="field">
+          <label for="webhook-url">URL del webhook</label>
+          <input id="webhook-url" type="text" placeholder="https://script.google.com/macros/s/..." 
+                 value="https://script.google.com/macros/s/AKfycbwo0m3C-2oeDErTAO9pzLp40B1407SbH3rZPsD9BN1ogQ9X11WT70GgG9iVuWbDaXfv/exec" required />
+          <div class="small-hint">URL del Google Apps Script webhook</div>
+        </div>
+        <div class="field">
+          <label for="from-number">Número origen (from)</label>
+          <input id="from-number" type="text" placeholder="22833301" value="22833301" maxlength="9" />
+          <div class="small-hint">Número de origen para las llamadas</div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="delay">Delay entre envíos (ms)</label>
+          <input id="delay" type="text" placeholder="1000" value="1000" />
+          <div class="small-hint">Tiempo de espera entre cada envío (milisegundos)</div>
+        </div>
+        <div class="field">
+          <label for="start-id">ID inicial de llamada</label>
+          <input id="start-id" type="text" placeholder="900000001" value="900000001" />
+          <div class="small-hint">ID inicial para las llamadas (se incrementa automáticamente)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>CSV de datos</h2>
+        <div class="field">
+          <label for="csv-input">Pega aquí el contenido del CSV</label>
+          <textarea id="csv-input" placeholder="phone,amabilidad_tecnico,calificacion_servicio,..."></textarea>
+          <div class="small-hint">El CSV debe incluir la primera fila con los encabezados. Los datos se enviarán tal cual, sin normalización ni procesamiento.</div>
+        </div>
+      <div class="buttons">
+        <button type="button" id="parse-btn" class="secondary">Parsear CSV (vista previa)</button>
+        <button type="button" id="start-btn" class="primary">Iniciar envío automático</button>
+        <button type="button" id="stop-btn" class="secondary" disabled>Detener</button>
+        <button type="button" id="clear-btn" class="secondary">Limpiar log</button>
+      </div>
+      <div id="parse-status" class="status-line"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Progreso</h2>
+      <div class="progress-bar">
+        <div id="progress-fill" class="progress-fill"></div>
+      </div>
+      <div class="stats">
+        <div class="stat-item">
+          <div id="stat-total" class="stat-value">0</div>
+          <div class="stat-label">Total</div>
+        </div>
+        <div class="stat-item">
+          <div id="stat-success" class="stat-value" style="color: #10b981;">0</div>
+          <div class="stat-label">Exitosos</div>
+        </div>
+        <div class="stat-item">
+          <div id="stat-failed" class="stat-value" style="color: #ef4444;">0</div>
+          <div class="stat-label">Fallidos</div>
+        </div>
+        <div class="stat-item">
+          <div id="stat-pending" class="stat-value" style="color: #6b7280;">0</div>
+          <div class="stat-label">Pendientes</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Vista previa del payload</h2>
+      <div class="field">
+        <label>Primera fila parseada (ejemplo)</label>
+        <pre id="payload-preview">// Parsea el CSV para ver el payload de ejemplo...</pre>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Log de envíos</h2>
+      <div id="log-container" class="log-container">
+        <div class="log-entry info">Listo para procesar CSV. Pega el contenido y haz clic en "Parsear CSV".</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      // Elementos del DOM
+      const csvInput = document.getElementById("csv-input");
+      const webhookUrlInput = document.getElementById("webhook-url");
+      const fromNumberInput = document.getElementById("from-number");
+      const delayInput = document.getElementById("delay");
+      const startIdInput = document.getElementById("start-id");
+      const parseBtn = document.getElementById("parse-btn");
+      const startBtn = document.getElementById("start-btn");
+      const stopBtn = document.getElementById("stop-btn");
+      const clearBtn = document.getElementById("clear-btn");
+      const payloadPreview = document.getElementById("payload-preview");
+      const parseStatus = document.getElementById("parse-status");
+      const logContainer = document.getElementById("log-container");
+      const progressFill = document.getElementById("progress-fill");
+      const statTotal = document.getElementById("stat-total");
+      const statSuccess = document.getElementById("stat-success");
+      const statFailed = document.getElementById("stat-failed");
+      const statPending = document.getElementById("stat-pending");
+
+      // Estado
+      let parsedRows = [];
+      let isSending = false;
+      let shouldStop = false;
+      let currentIndex = 0;
+      let stats = { total: 0, success: 0, failed: 0, pending: 0 };
+
+      // Función para parsear CSV
+      function parseCSV(csvText) {
+        const lines = csvText.trim().split(/\r?\n/);
+        if (lines.length < 2) {
+          throw new Error("El CSV debe tener al menos una fila de encabezados y una fila de datos");
+        }
+
+        // Parsear encabezados
+        const headers = lines[0].split(',').map(h => h.trim());
+        
+        // Parsear filas
+        const rows = [];
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue; // Saltar líneas vacías
+          
+          const values = [];
+          let current = '';
+          let inQuotes = false;
+          
+          for (let j = 0; j < line.length; j++) {
+            const char = line[j];
+            if (char === '"') {
+              inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+              values.push(current.trim());
+              current = '';
+            } else {
+              current += char;
+            }
+          }
+          values.push(current.trim()); // Último valor
+          
+          const row = {};
+          headers.forEach((header, idx) => {
+            row[header] = values[idx] || '';
+          });
+          
+          rows.push(row);
+        }
+        
+        return rows;
+      }
+
+      // Función para construir payload desde una fila CSV (sin procesamiento, datos fidedignos)
+      function buildPayloadFromRow(row, callId, fromNumber) {
+        // Obtener valores exactos del CSV sin normalización ni transformación
+        const phone = row.phone !== undefined && row.phone !== null ? String(row.phone) : null;
+        const calificacionRaw = row.calificacion_servicio !== undefined && row.calificacion_servicio !== null && row.calificacion_servicio !== '' ? String(row.calificacion_servicio) : null;
+        const npsRaw = row.nps !== undefined && row.nps !== null && row.nps !== '' ? String(row.nps) : null;
+        const tiempoRaw = row.tiempo_atencion !== undefined && row.tiempo_atencion !== null && row.tiempo_atencion !== '' ? String(row.tiempo_atencion) : null;
+        const amabilidadRaw = row.amabilidad_tecnico !== undefined && row.amabilidad_tecnico !== null && row.amabilidad_tecnico !== '' ? String(row.amabilidad_tecnico) : null;
+        const comentarioRaw = row.opinion_cliente !== undefined && row.opinion_cliente !== null && row.opinion_cliente !== '' ? String(row.opinion_cliente) : null;
+        const estadoRaw = row.estado_llamada_completada_rechazada_reprogramada_o_erronea !== undefined && row.estado_llamada_completada_rechazada_reprogramada_o_erronea !== null && row.estado_llamada_completada_rechazada_reprogramada_o_erronea !== '' ? String(row.estado_llamada_completada_rechazada_reprogramada_o_erronea) : null;
+        
+        // Construir analysis con valores exactos del CSV
+        const analysis = {};
+        const analysisSchema = {};
+        
+        // Solo convertir a número si el valor es numérico válido, sino mantener como string
+        if (calificacionRaw !== null) {
+          const calificacionNum = Number(calificacionRaw);
+          if (!isNaN(calificacionNum) && calificacionRaw.trim() !== '') {
+            analysis.calificacion_servicio = calificacionNum;
+            analysisSchema.calificacion_servicio = "number";
+          } else {
+            // Si no es número válido, mantener el valor original como string
+            analysis.calificacion_servicio = calificacionRaw;
+            analysisSchema.calificacion_servicio = "string";
+          }
+        }
+        
+        if (npsRaw !== null) {
+          const npsNum = Number(npsRaw);
+          if (!isNaN(npsNum) && npsRaw.trim() !== '') {
+            analysis.nps = npsNum;
+            analysisSchema.nps = "number";
+          } else {
+            analysis.nps = npsRaw;
+            analysisSchema.nps = "string";
+          }
+        }
+        
+        if (tiempoRaw !== null) {
+          analysis.tiempo_atencion = tiempoRaw;
+          analysisSchema.tiempo_atencion = "string";
+        }
+        
+        if (amabilidadRaw !== null) {
+          analysis.amabilidad_tecnico = amabilidadRaw;
+          analysisSchema.amabilidad_tecnico = "string";
+        }
+        
+        if (comentarioRaw !== null) {
+          analysis.opinion_cliente = comentarioRaw;
+          analysisSchema.opinion_cliente = "string";
+        }
+        
+        if (estadoRaw !== null) {
+          analysis.estado_llamada_completada_rechazada_reprogramada_o_erronea = estadoRaw;
+          analysisSchema.estado_llamada_completada_rechazada_reprogramada_o_erronea = "string";
+        }
+        
+        // Transcript y summary mínimos (solo estructura básica requerida por el webhook)
+        // No generamos contenido ficticio, solo estructura vacía o mínima
+        const baseTime = new Date();
+        const transcript = [{
+          id: "m1",
+          created_at: new Date(baseTime.getTime() - 30000).toISOString(),
+          text: "Llamada de encuesta de satisfacción TecniFix",
+          user: "bot"
+        }];
+        
+        const summary = "Encuesta de satisfacción post-servicio técnico";
+        
+        // Determinar is_completed basado en el estado original (sin normalizar)
+        let isCompleted = false;
+        if (estadoRaw) {
+          const estadoLower = estadoRaw.toLowerCase();
+          isCompleted = estadoLower === 'completada' || estadoLower === 'completed';
+        }
+        
+        // Construir payload
+        const payload = {
+          successful: true,
+          call: {
+            id: callId,
+            from: fromNumber || null,
+            to: phone,
+            credits: null, // No generamos créditos aleatorios
+            transcript: transcript,
+            summary: summary,
+            is_completed: isCompleted,
+            analysis_schema: analysisSchema,
+            analysis: analysis
+          }
+        };
+        
+        return payload;
+      }
+
+      // Función para agregar log
+      function addLog(message, type = 'info') {
+        const entry = document.createElement('div');
+        entry.className = `log-entry ${type}`;
+        const timestamp = new Date().toLocaleTimeString();
+        entry.textContent = `[${timestamp}] ${message}`;
+        logContainer.appendChild(entry);
+        logContainer.scrollTop = logContainer.scrollHeight;
+      }
+
+      // Función para actualizar estadísticas
+      function updateStats() {
+        statTotal.textContent = stats.total;
+        statSuccess.textContent = stats.success;
+        statFailed.textContent = stats.failed;
+        statPending.textContent = stats.pending;
+        
+        if (stats.total > 0) {
+          const progress = ((stats.success + stats.failed) / stats.total) * 100;
+          progressFill.style.width = progress + '%';
+        }
+      }
+
+      // Función para enviar webhook
+      async function sendWebhook(payload, index) {
+        const webhookUrl = webhookUrlInput.value.trim();
+        if (!webhookUrl) {
+          throw new Error("URL del webhook no configurada");
+        }
+        
+        try {
+          // Usar fetch con no-cors para evitar problemas de CORS
+          const response = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+            mode: 'no-cors'
+          });
+          
+          // En modo no-cors no podemos leer la respuesta, pero asumimos éxito si no hay error
+          return true;
+        } catch (error) {
+          throw error;
+        }
+      }
+
+      // Función para procesar envío
+      async function processSending() {
+        if (shouldStop || currentIndex >= parsedRows.length) {
+          isSending = false;
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+          addLog('Proceso de envío finalizado.', 'info');
+          return;
+        }
+        
+        const row = parsedRows[currentIndex];
+        const callId = parseInt(startIdInput.value) + currentIndex;
+        const fromNumber = fromNumberInput.value.trim() || null;
+        const delay = parseInt(delayInput.value) || 1000;
+        
+        try {
+          const payload = buildPayloadFromRow(row, callId, fromNumber);
+          const phone = row.phone || 'N/A';
+          const nombre = row.nombre_cliente || 'N/A';
+          
+          addLog(`Enviando [${currentIndex + 1}/${parsedRows.length}] ${nombre} (${phone})...`, 'info');
+          
+          await sendWebhook(payload, currentIndex);
+          
+          stats.success++;
+          stats.pending--;
+          updateStats();
+          addLog(`✓ Enviado correctamente: ${nombre} (${phone})`, 'success');
+          
+        } catch (error) {
+          stats.failed++;
+          stats.pending--;
+          updateStats();
+          addLog(`✗ Error al enviar [${currentIndex + 1}]: ${error.message}`, 'error');
+        }
+        
+        currentIndex++;
+        
+        if (currentIndex < parsedRows.length && !shouldStop) {
+          setTimeout(processSending, delay);
+        } else {
+          isSending = false;
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+          addLog('Proceso de envío finalizado.', 'info');
+        }
+      }
+
+      // Event listeners
+      parseBtn.addEventListener('click', function() {
+        const csvText = csvInput.value.trim();
+        if (!csvText) {
+          parseStatus.textContent = '⚠️ No hay CSV para parsear.';
+          return;
+        }
+        
+        try {
+          parsedRows = parseCSV(csvText);
+          parseStatus.textContent = `✅ CSV parseado correctamente. ${parsedRows.length} fila(s) encontrada(s).`;
+          
+          // Mostrar preview del primer payload
+          if (parsedRows.length > 0) {
+            const firstRow = parsedRows[0];
+            const callId = parseInt(startIdInput.value) || 900000001;
+            const fromNumber = fromNumberInput.value.trim() || null;
+            const previewPayload = buildPayloadFromRow(firstRow, callId, fromNumber);
+            payloadPreview.textContent = JSON.stringify(previewPayload, null, 2);
+          }
+          
+          // Resetear estadísticas
+          stats = { total: parsedRows.length, success: 0, failed: 0, pending: parsedRows.length };
+          currentIndex = 0;
+          updateStats();
+          
+          addLog(`CSV parseado: ${parsedRows.length} fila(s) lista(s) para enviar.`, 'success');
+          startBtn.disabled = false;
+          
+        } catch (error) {
+          parseStatus.textContent = `❌ Error al parsear CSV: ${error.message}`;
+          addLog(`Error al parsear CSV: ${error.message}`, 'error');
+          parsedRows = [];
+          startBtn.disabled = true;
+        }
+      });
+
+      startBtn.addEventListener('click', function() {
+        if (parsedRows.length === 0) {
+          addLog('⚠️ No hay filas parseadas. Haz clic en "Parsear CSV" primero.', 'error');
+          return;
+        }
+        
+        const webhookUrl = webhookUrlInput.value.trim();
+        if (!webhookUrl) {
+          addLog('⚠️ Configura la URL del webhook primero.', 'error');
+          return;
+        }
+        
+        isSending = true;
+        shouldStop = false;
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        currentIndex = 0;
+        
+        // Resetear estadísticas
+        stats = { total: parsedRows.length, success: 0, failed: 0, pending: parsedRows.length };
+        updateStats();
+        
+        addLog(`Iniciando envío de ${parsedRows.length} fila(s)...`, 'info');
+        processSending();
+      });
+
+      stopBtn.addEventListener('click', function() {
+        shouldStop = true;
+        addLog('Deteniendo envío...', 'info');
+      });
+
+      clearBtn.addEventListener('click', function() {
+        logContainer.innerHTML = '';
+        addLog('Log limpiado.', 'info');
+      });
+    })();
+  </script>
+</body>
+</html>
